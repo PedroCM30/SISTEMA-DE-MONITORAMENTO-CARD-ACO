@@ -1,0 +1,58 @@
+import time
+import random
+import requests
+
+# Configurações do dispositivo IoT
+DEVICE_ID = 'device123'
+SERVER_URL = 'http://central-de-processamento.com/api/monitoramento'
+HEART_RATE_THRESHOLD = 100  # Limite de batimentos cardíacos para alerta
+
+def collect_heart_rate():
+    """
+    Simula a coleta de batimentos cardíacos do sensor IoT.
+    """
+    # Gera um número aleatório entre 60 e 120 para simular batimentos cardíacos
+    return random.randint(60, 120)
+
+def send_data_to_server(heart_rate):
+    """
+    Envia os dados de batimentos cardíacos para a central de processamento.
+    """
+    payload = {
+        'device_id': DEVICE_ID,
+        'heart_rate': heart_rate,
+        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
+    }
+    try:
+        response = requests.post(SERVER_URL, json=payload)
+        response.raise_for_status()
+        print('Dados enviados com sucesso:', payload)
+    except requests.exceptions.RequestException as e:
+        print('Erro ao enviar dados:', e)
+
+def check_for_alerts(heart_rate):
+    """
+    Verifica se os batimentos cardíacos estão fora dos limites normais e gera um alerta se necessário.
+    """
+    if heart_rate > HEART_RATE_THRESHOLD:
+        print(f'ALERTA: Batimentos cardíacos elevados detectados: {heart_rate} BPM')
+
+def main():
+    """
+    Função principal do script de monitoramento.
+    """
+    while True:
+        # Coleta o batimento cardíaco
+        heart_rate = collect_heart_rate()
+        
+        # Envia os dados para o servidor
+        send_data_to_server(heart_rate)
+        
+        # Verifica se há necessidade de alerta
+        check_for_alerts(heart_rate)
+        
+        # Aguarda antes de coletar os dados novamente
+        time.sleep(60)  # Aguarda 60 segundos
+
+if __name__ == '__main__':
+    main()
